@@ -93,7 +93,7 @@ const CreateClient = () => {
     
     if (response.success) {
       // Verificar se é um cliente já cadastrado (baseado na estrutura da resposta)
-      const isExistingClient = response.data && response.data.id && response.data.created_at;
+      const isExistingClient = response.data && response.data.id && response.data.created_at && !response.data.message;
       
       if (isExistingClient) {
         setResult({
@@ -103,10 +103,12 @@ const CreateClient = () => {
           isExistingClient: true
         });
       } else {
+        // Cliente cadastrado com sucesso
         setResult({
           type: 'success',
-          message: '🎉 Cliente criado com sucesso!',
-          data: response.data
+          message: response.data?.message || '🎉 Cliente cadastrado com sucesso!',
+          data: response.data,
+          isNewClient: true
         });
         // Limpar formulário após sucesso
         setFormData({
@@ -195,14 +197,27 @@ const CreateClient = () => {
             )}
           </p>
           
-          {result.data && (
+          {result.data && result.isExistingClient && (
             <div className="client-info">
-              <h3>📋 {result.isExistingClient ? 'Dados do Cliente:' : 'Dados do Cliente Cadastrado:'}</h3>
+              <h3>📋 Dados do Cliente:</h3>
               <p><strong>Empresa:</strong> {result.data.company_name || 'N/A'}</p>
               <p><strong>CNPJ:</strong> {formatCNPJDisplay(result.data.cnpj)}</p>
-              {result.isExistingClient && (
-                <p><strong>Data de Cadastro:</strong> {formatDate(result.data.created_at)}</p>
-              )}
+              <p><strong>Data de Cadastro:</strong> {formatDate(result.data.created_at)}</p>
+            </div>
+          )}
+          
+          {result.isNewClient && (
+            <div style={{ 
+              marginTop: '20px', 
+              padding: '20px', 
+              background: 'rgba(47, 154, 69, 0.1)', 
+              borderRadius: '12px',
+              border: '1px solid rgba(47, 154, 69, 0.2)',
+              textAlign: 'center'
+            }}>
+              <p style={{ margin: 0, color: '#2f9a45', fontWeight: '600' }}>
+                ✅ Cliente cadastrado com sucesso em nossa base de dados!
+              </p>
             </div>
           )}
           
