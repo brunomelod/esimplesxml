@@ -76,6 +76,17 @@ const ViewClient = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  };
+
+  const formatCNPJDisplay = (cnpj) => {
+    if (!cnpj) return 'N/A';
+    return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  };
+
   const handleClear = () => {
     setCnpj('');
     setResult(null);
@@ -139,14 +150,11 @@ const ViewClient = () => {
           {result.data && (
             <div className="client-info">
               <h3>📋 Informações do Cliente:</h3>
-              {typeof result.data === 'object' ? (
-                Object.entries(result.data).map(([key, value]) => (
-                  <p key={key}>
-                    <strong>{key.replace(/_/g, ' ').toUpperCase()}:</strong> {value}
-                  </p>
-                ))
-              ) : (
-                <p><strong>Dados:</strong> {JSON.stringify(result.data)}</p>
+              <p><strong>Empresa:</strong> {result.data.company_name || 'N/A'}</p>
+              <p><strong>CNPJ:</strong> {formatCNPJDisplay(result.data.cnpj)}</p>
+              <p><strong>Data de Cadastro:</strong> {formatDate(result.data.created_at)}</p>
+              {result.data.is_active !== undefined && (
+                <p><strong>Status:</strong> {result.data.is_active ? 'Ativo' : 'Inativo'}</p>
               )}
             </div>
           )}

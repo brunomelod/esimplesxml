@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import CreateClient from './components/CreateClient';
 import ViewClient from './components/ViewClient';
 import './App.css';
+import logoEsimples from './assets/logo-esimples.png';
 
 function App() {
   const [activeTab, setActiveTab] = useState('create');
@@ -18,7 +19,7 @@ function App() {
       <div className="container">
         <header className="header">
           <img 
-            src={process.env.PUBLIC_URL + "/logo-esimples.png"} 
+            src={logoEsimples} 
             alt="eSimples Logo" 
             className="logo"
             style={{ marginBottom: '5px' }}

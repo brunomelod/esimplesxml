@@ -58,6 +58,17 @@ const CreateClient = () => {
     return true;
   };
 
+  const formatDate = (dateString) => {
+    if (!dateString) return 'N/A';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR');
+  };
+
+  const formatCNPJDisplay = (cnpj) => {
+    if (!cnpj) return 'N/A';
+    return cnpj.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -81,16 +92,28 @@ const CreateClient = () => {
     setLoading(false);
     
     if (response.success) {
-      setResult({
-        type: 'success',
-        message: '🎉 Cliente criado com sucesso!',
-        data: response.data
-      });
-      // Limpar formulário após sucesso
-      setFormData({
-        cnpj: '',
-        company_name: ''
-      });
+      // Verificar se é um cliente já cadastrado (baseado na estrutura da resposta)
+      const isExistingClient = response.data && response.data.id && response.data.created_at;
+      
+      if (isExistingClient) {
+        setResult({
+          type: 'info',
+          message: 'Cliente já cadastrado em nossa base',
+          data: response.data,
+          isExistingClient: true
+        });
+      } else {
+        setResult({
+          type: 'success',
+          message: '🎉 Cliente criado com sucesso!',
+          data: response.data
+        });
+        // Limpar formulário após sucesso
+        setFormData({
+          cnpj: '',
+          company_name: ''
+        });
+      }
     } else {
       const isServerError = response.status === 500;
       setResult({
@@ -155,7 +178,7 @@ const CreateClient = () => {
       {result && (
         <div className={`result ${result.type}`}>
           <p style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '15px' }}>
-            {result.message}
+            {result.isExistingClient ? 'ℹ️ ' : ''}{result.message}
             {result.isServerError && (
               <span style={{ 
                 display: 'inline-block', 
@@ -174,9 +197,12 @@ const CreateClient = () => {
           
           {result.data && (
             <div className="client-info">
-              <h3>📋 Dados do Cliente Cadastrado:</h3>
-              <p><strong>CNPJ:</strong> {result.data.cnpj}</p>
-              <p><strong>Empresa:</strong> {result.data.company_name}</p>
+              <h3>📋 {result.isExistingClient ? 'Dados do Cliente:' : 'Dados do Cliente Cadastrado:'}</h3>
+              <p><strong>Empresa:</strong> {result.data.company_name || 'N/A'}</p>
+              <p><strong>CNPJ:</strong> {formatCNPJDisplay(result.data.cnpj)}</p>
+              {result.isExistingClient && (
+                <p><strong>Data de Cadastro:</strong> {formatDate(result.data.created_at)}</p>
+              )}
             </div>
           )}
           
